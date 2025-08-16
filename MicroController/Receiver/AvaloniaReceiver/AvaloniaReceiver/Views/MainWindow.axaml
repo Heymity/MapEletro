@@ -1,0 +1,138 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AvaloniaReceiver.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="clr-namespace:OxyPlot.Avalonia;assembly=OxyPlot.Avalonia"
+        xmlns:dt="clr-namespace:AvaloniaReceiver.DataTemplates"
+        xmlns:cc="clr-namespace:AvaloniaReceiver.CustomControls"
+        xmlns:cp="clr-namespace:ThemeEditor.Controls.ColorPicker;assembly=ThemeEditor.Controls.ColorPicker"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
+        x:Class="AvaloniaReceiver.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="AvaloniaReceiver">
+
+    <Window.Styles>
+    </Window.Styles>
+    
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+    
+    <Grid RowDefinitions="Auto,*" Margin="0" RowSpacing="0">
+        <DockPanel Margin="0 0 0 0" >
+            <Menu>
+                <ComboBox x:Name="ComboBoxPorts" DropDownOpened="ComboBoxPorts_OnDropDownOpened" Width="220" PlaceholderText="Selecione uma porta serial"/>
+                <MenuItem x:Name="ConnectBtn" Header="{Binding ConnectBtnHeader}" Click="ConnectMenuItem_Click"></MenuItem>
+                <MenuItem Header="Clear Points" Click="ClearPointsMenuItem_Click"/>
+                <MenuItem Header="{Binding RecordingBtnHeader}" Command="{Binding RecordingBtnCommand}"/>
+            </Menu>
+        </DockPanel>
+        <TabControl Grid.Row="1" Padding="0">
+            <TabItem Header="Channel x Time">
+                <SplitView IsPaneOpen="{Binding IsPaneOpen}"  DisplayMode="CompactInline" CornerRadius="10" OpenPaneLength="350">
+                    <SplitView.Pane>
+                        <ScrollViewer>
+                            <StackPanel Margin="5">
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Button Grid.Column="1" Command="{Binding TogglePane}" Width="35" Height="35" Content="{Binding IsPaneOpen}"/>
+                                </Grid>
+                                <Grid RowSpacing="5" ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto" IsVisible="{Binding IsPaneOpen}" Margin="5">
+                                    <Label>Time range</Label>
+                                    <NumericUpDown x:Name="TimeRange" ValueChanged="TimeRange_OnValueChanged" Grid.Row="0"
+                                                   Grid.Column="1" Value="{Binding TimeRange}"></NumericUpDown>
+                                    
+                                    <Expander Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="1" Padding="0" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                        <Expander.Header>
+                                            Channels
+                                        </Expander.Header>
+                                        <ListBox ItemsSource="{Binding ChannelsListBinding}">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type dt:ChannelListDataTemplate}">
+                                                    <Grid ColumnSpacing="5" ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                                        <ToggleButton Width="20" Height="20" Click="ChannelEnable_OnClick" IsChecked="{Binding Enabled}"/>
+                                                        <TextBlock VerticalAlignment="Center" Grid.Column="1" Text="{Binding ChannelName}"/>
+                                                        <ColorPicker Grid.Column="2" ColorChanged="ColorView_OnColorChanged" Color="{Binding ChannelColor}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Expander>
+                                    <Expander Grid.ColumnSpan="2" Grid.Column="0" Grid.Row="2" Padding="0" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                        <Expander.Header>
+                                            Filters
+                                        </Expander.Header>
+                                        <StackPanel>
+                                            <ListBox Name="FiltersList" DragDrop.AllowDrop="True" ItemsSource="{Binding FilterListBoxItems}">
+                                                <ListBox.Styles>
+                                                    <Style Selector="ListBoxItem">
+                                                        <Setter Property="Padding" Value="0"/>
+                                                    </Style>
+                                                </ListBox.Styles>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate DataType="dt:FilterDataTemplate">
+                                                        <cc:FilterListBoxItem FilterData="{Binding}" Margin="12">
+                                                            <TextBlock Text="{Binding FilterInstanceId}"></TextBlock>
+                                                        </cc:FilterListBoxItem>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            <Grid ColumnDefinitions="4*,*" Margin="12" HorizontalAlignment="Stretch" ColumnSpacing="2">
+                                                <ComboBox Name="NextFilterName" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableFilters}"/>
+                                                <Button Grid.Column="1" Click="AddNewFilter_OnClick" Content="+" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Expander>
+                                </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </SplitView.Pane>
+                    <Grid RowDefinitions="*,Auto,*"> 
+                        <oxy:PlotView Grid.Row="0" Model="{Binding PlotModelTime}"/>
+                        <GridSplitter Grid.Row="1"></GridSplitter>
+                        <oxy:PlotView Grid.Row="2" Model="{Binding PlotModelFFT}"/>
+                    </Grid>
+                </SplitView>
+            </TabItem>
+            <TabItem Header="XY">
+                <Grid ColumnDefinitions="300,Auto,*,Auto">
+                    <StackPanel HorizontalAlignment="Stretch">
+                        <Label>X Channel: </Label>
+                        <ComboBox Name="XChannelSelect" DropDownOpened="UpdateChannelListOnXyPlot" SelectionChanged="UpdateXyChannels"/>
+                        <Label>Y Channel: </Label>
+                        <ComboBox Name="YChannelSelect" DropDownOpened="UpdateChannelListOnXyPlot" SelectionChanged="UpdateXyChannels"/>
+                        <Label>Decimate Factor</Label>
+                        <NumericUpDown Value="{Binding XYDecimateFactor}"/>
+                        <Label>Point Number</Label>
+                        <NumericUpDown Value="{Binding XyPointCount}"/>
+                        <Label>Mark Point</Label>
+                        <Button Command="{Binding MarkPoint}">Mark Point</Button>
+                        <Button Command="{Binding CreateReferenceGrid}">Create Reference Grid</Button>
+                        <Label>Grid X Len</Label>
+                        <NumericUpDown Value="{Binding GridLenX}"/>
+                        <Label>Grid X Offset</Label>
+                        <NumericUpDown Value="{Binding GridOffsetX}"/>
+                        <Label>Grid X Separation</Label>
+                        <NumericUpDown Value="{Binding GridSeparationX}"/>
+                        <Label>Grid Y Len</Label>
+                        <NumericUpDown Value="{Binding GridLenY}"/>
+                        <Label>Grid Y Offset</Label>
+                        <NumericUpDown Value="{Binding GridOffsetY}"/>
+                        <Label>Grid Y Separation</Label>
+                        <NumericUpDown Value="{Binding GridSeparationY}"/>
+                    </StackPanel>
+                    <!--GridSplitter Grid.Column="1"/-->
+                    <oxy:PlotView Grid.Column="2" x:Name="PlotViewXy" LayoutUpdated="PlotXy_OnLayoutUpdated" Model="{Binding PlotModelXy}"/>
+                    <Rectangle Grid.Column="3"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="XYZ">
+                
+            </TabItem>
+        </TabControl>
+    </Grid>
+    
+</Window>

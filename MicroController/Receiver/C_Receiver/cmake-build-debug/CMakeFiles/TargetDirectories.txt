@@ -1,0 +1,3 @@
+D:/USP/IC/MicroController/Receiver/C_Receiver/cmake-build-debug/CMakeFiles/C_Receiver.dir
+D:/USP/IC/MicroController/Receiver/C_Receiver/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/USP/IC/MicroController/Receiver/C_Receiver/cmake-build-debug/CMakeFiles/rebuild_cache.dir

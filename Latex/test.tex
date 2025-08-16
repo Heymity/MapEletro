@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{caption}
+\usepackage{siunitx}
+
+\title{Análise de Circuito}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Circuito e Análise}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{circuito.png} % Substitua pela imagem correspondente se necessário
+\end{center}
+
+\[
+i = \frac{V_A - V_B}{R_G + 2R_C}
+\quad \Rightarrow \quad V_B - V_C = R_G \cdot i
+\]
+
+\[
+V_C - V_E = \frac{R_G}{R_G + 2R_C}(V_A - V_B)
+\Rightarrow V_B - V_A = \left(1 + \frac{2R_C}{R_G}\right)(V_2 - V_1)
+\]
+
+\[
+V_0 = \frac{Z_3}{R_2} \left(1 + \frac{2R_C}{R_G}\right)(V_2 - V_1)
+\Rightarrow G(j\omega) = \frac{Z_3(j\omega)}{R_2} \left(1 + \frac{2R_C}{R_G} \right)
+\]
+
+\[
+Z_3(j\omega) = \frac{1}{\frac{1}{R_3} + j\omega C} = \frac{1}{\frac{1 + j\omega C R_3}{R_3}} = \frac{R_3}{1 + j\omega C R_3}
+\]
+
+\[
+\Rightarrow G(j\omega) = \frac{R_3}{R_2} \left(1 + \frac{2R_C}{R_G} \right) \cdot \frac{1}{1 + j\omega C R_3}
+\]
+
+\[
+20\log_{10}|G(j\omega)| = 20\log_{10}\left( \frac{R_3}{R_2} \left(1 + \frac{2R_C}{R_G} \right) \right) + 20\log_{10} \left( \frac{1}{\sqrt{1 + (\omega C R_3)^2}} \right)
+\]
+
+\noindent
+Considerando $R_3 = R_2 = R_1 = R_G = R$:
+
+\[
+= 20\log_{10}(3) + 20\log_{10}\left( \frac{1}{1 + j\omega C R} \right)
+\]
+
+\[
+\omega_c = \frac{1}{R_3 C}, \quad C = \frac{1}{R_3 2\pi f}
+\]
+
+\[
+R_3 = 18\,\text{k}\Omega, \quad C = \frac{10^{-3}}{113\pi} \approx \frac{8 \cdot 10^{-6}}{\pi}
+\]
+
+\section*{Gráfico de Resposta em Frequência}
+
+\begin{center}
+\begin{tikzpicture}
+\draw[->] (0,0) -- (7,0) node[right] {$\omega$};
+\draw[->] (0,0) -- (0,5) node[above] {$|G(j\omega)|$ (dB)};
+\draw[thick] (0,4.5) -- (3,4.5) -- (6,1.5);
+\draw[dashed] (3,0) -- (3,4.5) node[midway,right] {$CR_3$};
+\end{tikzpicture}
+\end{center}
+
+\end{document}
+

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="OxyPlot.Wpf" Version="2.2.0" />
+      <PackageReference Include="PropertyTools.Wpf" Version="3.1.0" />
+      <PackageReference Include="System.IO.Ports" Version="9.0.7" />
+    </ItemGroup>
+
+</Project>
